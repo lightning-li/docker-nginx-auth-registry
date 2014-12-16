@@ -20,6 +20,10 @@ openssl req -subj /CN=lightningli.co -new -key server-key.pem -out server.csr
 
 openssl x509 -req -days 365 -in server.csr -CA ca.pem -CAkey ca-key.pem -out server-cert.pem 
 
+We should remove the passphrase from server key:
+
+openssl rsa -in server-key.pem -out server-key.pem
+
 
 3.用nginx容器中配好https服务
 cp docker-registry.htpasswd /etc/nginx/
@@ -33,7 +37,7 @@ cp server-key.pem /etc/ssl/private/docker-registry
 
 cp nginx.conf /etc/nginx
 
-cp nginx.default /etc/nginx/sites-enable/default
+cp nginx.default /etc/nginx/sites-enabled/default
 
 
 5.将ca证书导入docker宿主机
@@ -51,6 +55,9 @@ docker run -d --name lknginx --hostname lightningli.co -p 443:443 --link registr
 lightningli0504/docker-nginx-auth-registry
 
 docker tag scratch lightningli.co/scratch 
+
+记得修改/etc/hosts 添加：
+127.0.0.1 lightningli.co
 
 docker login -u kiss -p test lightningli.co
 
